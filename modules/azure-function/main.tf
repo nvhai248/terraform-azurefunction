@@ -49,24 +49,22 @@ resource "azurerm_storage_container" "container" {
 }
 
 # Function App
-resource "azurerm_linux_function_app" "function" {
-  name                       = var.function_name
-  location                   = azurerm_resource_group.rg.location
-  resource_group_name        = azurerm_resource_group.rg.name
-  service_plan_id            = azurerm_service_plan.plan.id
-  storage_account_name       = azurerm_storage_account.sa.name
-  storage_account_access_key = azurerm_storage_account.sa.primary_access_key
+resource "azurerm_function_app_flex_consumption" "function" {
+  name                = var.function_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  service_plan_id     = azurerm_service_plan.plan.id
+
+  storage_container_type      = "blobContainer"
+  storage_container_endpoint  = "${azurerm_storage_account.sa.primary_blob_endpoint}${azurerm_storage_container.container.name}"
+  storage_authentication_type = "StorageAccountConnectionString"
+  storage_access_key          = azurerm_storage_account.sa.primary_access_key
+  runtime_name                = var.runtime
+  runtime_version             = var.runtime_version
+  maximum_instance_count      = 50
+  instance_memory_in_mb       = 2048
 
   site_config {
-    application_stack {
-      python_version = var.runtime_version
-    }
-  }
-
-  app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.app.instrumentation_key
-    "STORAGE_CONTAINER_NAME"         = azurerm_storage_container.container.name
-    "STORAGE_ACCOUNT_NAME"           = azurerm_storage_account.sa.name
   }
 }
 

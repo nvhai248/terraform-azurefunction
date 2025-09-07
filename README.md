@@ -14,6 +14,7 @@ This guide explains how to set up and deploy a Python-based Azure Function App u
 - **Make**: Install via `choco install make` (Windows) or equivalent.
 - **Python**: Version matching your Function App runtime.
 - **zip**: For creating ZIP files.
+-- **Azure Functions Core Tools**: Go to Install from [Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp).
 
 ---
 
