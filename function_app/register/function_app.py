@@ -3,7 +3,7 @@ import json
 import psycopg2
 import azure.functions as func
 
-from ..utils import hash_pw, generate_token, DB_URL
+from __app__.utils.utils import hash_pw, generate_token, DB_URL
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
