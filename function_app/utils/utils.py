@@ -10,7 +10,7 @@ import jwt
 # ============================
 DB_URL = os.getenv(
     "DB_URL",
-    "postgresql://user:password@localhost:5432/mydatabase"
+    "postgresql://root:Abc%40123@localhost:5432/microleaf"
 )
 SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key")
 TOKEN_EXP_SECONDS = 3600  # 1h

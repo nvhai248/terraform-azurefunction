@@ -1,7 +1,9 @@
+import email
 import logging
 import json
 import psycopg2
 import azure.functions as func
+import cuid
 
 from __app__.utils.utils import hash_pw, generate_token, DB_URL
 
@@ -18,13 +20,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json"
         )
 
-    username = body.get("username")
     password = body.get("password")
     email = body.get("email")
 
-    if not username or not password or not email:
+    if not password or not email:
         return func.HttpResponse(
-            json.dumps({"error": "username, password, email required"}),
+            json.dumps({"error": "password, email required"}),
             status_code=400,
             mimetype="application/json"
         )
@@ -34,7 +35,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         cur = conn.cursor()
 
         # Check if user exists
-        cur.execute("SELECT 1 FROM users WHERE username = %s", (username,))
+        cur.execute('SELECT 1 FROM "User" WHERE email = %s', (email,))
         if cur.fetchone():
             return func.HttpResponse(
                 json.dumps({"error": "User already exists"}),
@@ -45,15 +46,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         # Hash password
         hashed = hash_pw(password)
 
+        user_id = cuid.cuid()
         # Insert new user
         cur.execute(
-            "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
-            (username, email, hashed)
+            'INSERT INTO "User" (id, email, "passwordHash", "updatedAt") VALUES (%s, %s, %s, %s)',
+            (user_id, email, hashed, "now()")
         )
         conn.commit()
 
         # Generate token
-        token = generate_token(username)
+        token = generate_token(email)
 
         return func.HttpResponse(
             json.dumps({"message": "User registered", "token": token}),
