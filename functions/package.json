@@ -1,0 +1,28 @@
+{
+  "name": "microleap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "generate": "npx prisma generate",
+    "prestart": "npm run clean && npm run build && npm run generate",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.3",
+    "@prisma/client": "^6.15.0",
+    "dotenv": "^17.2.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.x",
+    "azure-functions-core-tools": "^4.x",
+    "prisma": "^6.15.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  }
+}
