@@ -2,11 +2,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "outDir": "dist",
+    "outDir": "./dist",
     "rootDir": ".",
     "sourceMap": true,
     "esModuleInterop": true,
     "strict": false
   },
-  "include": ["src", "generated/prisma"]
+  "include": ["src"]
 }
