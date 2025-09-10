@@ -4,6 +4,6 @@ module "azure_function" {
   function_name        = "microleaffunc"
   location             = "Southeast Asia"
   app_service_plan_sku = "FC1"
-  runtime              = "python"
-  runtime_version      = "3.12"
+  runtime              = "node"
+  runtime_version      = "22"
 }
