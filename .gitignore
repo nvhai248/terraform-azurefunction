@@ -182,3 +182,6 @@ venv
 .vscode
 
 /generated/prisma
+
+deploy
+functionapp.zip
