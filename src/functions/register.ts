@@ -21,13 +21,13 @@ export async function register(
   context.log(`Register function processed request for url "${request.url}"`);
 
   try {
-    // Ensure request body is parsed as an object
-    const body: RegisterRequestBody = (
-      request.body && typeof request.body === "object" ? request.body : {}
-    ) as RegisterRequestBody;
+    // Parse JSON body explicitly
+    console.log("Request:", request);
+    const body = (await request.body) as RegisterRequestBody;
+    console.log("Request body:", body);
 
-    const email = body.email || request.query.get("email");
-    const password = body.password || request.query.get("password");
+    const email = body.email || request.query.get("email") || "";
+    const password = body.password || request.query.get("password") || "";
 
     if (!email || !password) {
       return {
@@ -59,9 +59,6 @@ export async function register(
         passwordHash: hashedPassword,
       },
     });
-
-    // (Optional) Save email + hashedPassword to DB here
-    // await saveUserToDB(email, hashedPassword);
 
     // Generate a token for the new user
     const token = auth.generateToken(email);
