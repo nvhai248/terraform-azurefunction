@@ -22,9 +22,11 @@ resource "azurerm_api_management_api" "function_api" {
     # If you have swagger/json spec for function
     # change to link swagger. if you don't have,
     # you can create it using OpenAPI or mock
-    content_format = "swagger-link-json"
+    content_format = "openapi-link"
     content_value  = "https://${var.function_app_url}/api/swagger.json"
   }
+
+  depends_on = [azurerm_api_management.apim]
 }
 
 # JWT Validation Policy
@@ -39,9 +41,11 @@ resource "azurerm_api_management_api_policy" "jwt_policy" {
     <base />
     <validate-jwt header-name="Authorization" failed-validation-httpcode="401" require-scheme="Bearer">
       <openid-config url="https://login.microsoftonline.com/${var.tenant_id}/v2.0/.well-known/openid-configuration" />
-      <required-claim name="aud" match="any">
-        <value>api://${var.api_app_client_id}</value>
-      </required-claim>
+      <required-claims>
+        <claim name="aud" match="any">
+          <value>api://${var.api_app_client_id}</value>
+        </claim>
+      </required-claims>
     </validate-jwt>
   </inbound>
   <backend>
@@ -52,4 +56,6 @@ resource "azurerm_api_management_api_policy" "jwt_policy" {
   </outbound>
 </policies>
 XML
+
+  depends_on = [azurerm_api_management_api.function_api]
 }

@@ -18,6 +18,7 @@ variable "location" {
 variable "function_app_url" {
   description = "The URL of the Azure Function App"
   type        = string
+  default     = "microleaffunc.azurewebsites.net"
 }
 
 variable "tenant_id" {
