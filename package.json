@@ -16,7 +16,9 @@
     "@azure/functions": "^4.7.3",
     "@prisma/client": "^6.15.0",
     "dotenv": "^17.2.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-dist": "^5.29.0"
   },
   "devDependencies": {
     "@types/node": "24.x",

@@ -5,6 +5,45 @@ import {
   InvocationContext,
 } from "@azure/functions";
 
+/**
+ * @openapi
+ * /api/healcheck:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Returns a hello message to confirm the service is running.
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Optional name to include in the response
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: "Hello, world!"
+ *   post:
+ *     summary: Health check endpoint (POST)
+ *     description: Accepts text/plain body and returns hello message.
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         text/plain:
+ *           schema:
+ *             type: string
+ *             example: "Azure"
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: "Hello, Azure!"
+ */
 export async function healthCheck(
   request: HttpRequest,
   context: InvocationContext

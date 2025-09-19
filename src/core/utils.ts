@@ -1,54 +1,61 @@
-import * as crypto from "crypto";
-import * as jwt from "jsonwebtoken";
-import { SECRET_KEY, TOKEN_EXP_SECONDS } from "./const";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+export interface DecodedToken extends JwtPayload {
+  oid?: string;
+  sub?: string;
+  [key: string]: any;
+}
 
 export class AuthUtils {
-  private secretKey: string;
-
-  constructor(secretKey: string = SECRET_KEY) {
-    this.secretKey = secretKey;
-  }
-
-  // ============================
-  // Password utilities
-  // ============================
-  public hashPassword(password: string, salt?: string): string {
-    if (!salt) {
-      salt = crypto.randomBytes(16).toString("base64url");
-    }
-    const hash = crypto.pbkdf2Sync(password, salt, 100000, 32, "sha256");
-    return `${salt}$${hash.toString("base64url")}`;
-  }
-
-  public verifyPassword(password: string, hashedValue: string): boolean {
+  public static decodeToken(token: string): DecodedToken | null {
     try {
-      const [salt, hashB64] = hashedValue.split("$");
-      const newHash = crypto.pbkdf2Sync(password, salt, 100000, 32, "sha256");
-      return crypto.timingSafeEqual(
-        Buffer.from(newHash),
-        Buffer.from(Buffer.from(hashB64, "base64url"))
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  // ============================
-  // JWT utilities
-  // ============================
-  public generateToken(userId: string): string {
-    const payload = {
-      sub: userId,
-      exp: Math.floor(Date.now() / 1000) + TOKEN_EXP_SECONDS,
-    };
-    return jwt.sign(payload, this.secretKey, { algorithm: "HS256" });
-  }
-
-  public verifyToken(token: string): any | null {
-    try {
-      return jwt.verify(token, this.secretKey, { algorithms: ["HS256"] });
-    } catch {
+      const decoded = jwt.decode(token) as DecodedToken | null;
+      return decoded;
+    } catch (error) {
       return null;
     }
+  }
+}
+
+// Wrapper class for HttpResponse in Azure Function
+export class HttpResponse {
+  status: number;
+  headers: Record<string, string>;
+  body?: unknown;
+
+  constructor(
+    status: number = 200,
+    body?: unknown,
+    headers: Record<string, string> = { "Content-Type": "application/json" }
+  ) {
+    this.status = status;
+    this.body = body;
+    this.headers = headers;
+  }
+
+  static ok(body?: unknown): HttpResponse {
+    return new HttpResponse(200, body);
+  }
+
+  static badRequest(message: string = "Bad Request"): HttpResponse {
+    return new HttpResponse(400, { error: message });
+  }
+
+  static unauthorized(message: string = "Unauthorized"): HttpResponse {
+    return new HttpResponse(401, { error: message });
+  }
+
+  static internalError(
+    message: string = "Internal Server Error"
+  ): HttpResponse {
+    return new HttpResponse(500, { error: message });
+  }
+
+  toAzureResponse(): any {
+    return {
+      status: this.status,
+      headers: this.headers,
+      body: this.body,
+    };
   }
 }
