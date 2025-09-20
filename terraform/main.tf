@@ -9,13 +9,14 @@ module "azure_function" {
 }
 
 module "apim" {
-  source              = "./modules/apim"
-  function_name       = module.azure_function.function_app_name
-  api_app_client_id   = "fe4c4971-249d-4fc8-bc38-2500ffa92816"
-  resource_group_name = module.azure_function.resource_group_name
-  location            = module.azure_function.location
-  function_app_url    = module.azure_function.function_app_url
-  tenant_id           = data.azurerm_client_config.current.tenant_id
+  source                         = "./modules/apim"
+  function_name                  = module.azure_function.function_app_name
+  api_app_client_id              = "fe4c4971-249d-4fc8-bc38-2500ffa92816"
+  resource_group_name            = module.azure_function.resource_group_name
+  location                       = module.azure_function.location
+  function_app_url               = module.azure_function.function_app_url
+  tenant_id                      = data.azurerm_client_config.current.tenant_id
+  function_key                   = module.azure_function.default_function_key
 }
 
 data "azurerm_client_config" "current" {}

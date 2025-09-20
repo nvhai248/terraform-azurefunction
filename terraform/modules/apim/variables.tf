@@ -25,3 +25,9 @@ variable "tenant_id" {
   description = "The Azure AD tenant ID"
   type        = string
 }
+
+variable "function_key" {
+  description = "Function Key for Azure Function"
+  type        = string
+  sensitive   = true
+}

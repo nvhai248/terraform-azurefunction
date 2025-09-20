@@ -68,4 +68,3 @@ resource "azurerm_function_app_flex_consumption" "function" {
   }
 }
 
-data "azurerm_client_config" "current" {}
