@@ -58,7 +58,7 @@ export async function healthCheck(
 }
 
 app.http("healcheck", {
-  methods: ["GET", "POST"],
+  methods: ["GET"],
   authLevel: "anonymous",
   handler: healthCheck,
 });

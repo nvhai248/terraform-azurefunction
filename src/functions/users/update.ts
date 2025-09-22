@@ -1,0 +1,87 @@
+import {
+  app,
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
+import { AuthUtils, DecodedToken, HttpResponse } from "../../core/utils";
+import { prisma } from "../../core/database";
+import { UpdateUserDto } from "../../core/dtos/user";
+
+/**
+ * @openapi
+ * /api/users:
+ *   put:
+ *     summary: Update user profile
+ *     description: |
+ *       Update user profile fields (height, weight, gender, activityLevel).
+ *       The user is identified from the `Authorization` bearer token.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUserDto'
+ *     responses:
+ *       200:
+ *         description: User successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 height:
+ *                   type: number
+ *                 weight:
+ *                   type: number
+ *                 gender:
+ *                   type: string
+ *                   enum: [male, female, other]
+ *                 activityLevel:
+ *                   type: string
+ *                   enum: [sedentary, active, very_active]
+ *       400:
+ *         description: Invalid request body
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       500:
+ *         description: Internal server error
+ */
+export async function updateUser(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  const token = AuthUtils.extractToken(request);
+  const userId = AuthUtils.getUserId(token);
+  if (!userId)
+    return HttpResponse.unauthorized("Invalid token").toAzureResponse();
+
+  try {
+    const body = (await request.json()) as UpdateUserDto;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        height: body.height ?? undefined,
+        weight: body.weight ?? undefined,
+        gender: body.gender ?? undefined,
+        activityLevel: body.activityLevel ?? undefined,
+      },
+    });
+
+    return HttpResponse.ok(updatedUser).toAzureResponse();
+  } catch (err) {
+    context.log("Error updating user:", (err as Error).message);
+    return HttpResponse.internalError().toAzureResponse();
+  }
+}
+
+app.http("updateUser", {
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: updateUser,
+});
