@@ -24,7 +24,7 @@ resource "azurerm_api_management_api" "function_api" {
     # change to link swagger. if you don't have,
     # you can create it using OpenAPI or mock
     content_format = "openapi-link"
-    content_value  = "https://${var.function_app_url}/api/swagger.json"
+    content_value  = "https://${var.function_app_url}/api/swagger.json?rev=${var.build_id}"
   }
 
   depends_on = [azurerm_api_management.apim]

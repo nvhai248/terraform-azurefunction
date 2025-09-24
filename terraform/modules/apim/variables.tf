@@ -31,3 +31,9 @@ variable "function_key" {
   type        = string
   sensitive   = true
 }
+
+variable "build_id" {
+  description = "Build ID or version to append to the swagger URL for cache busting"
+  type        = string
+  default     = "1"
+}
