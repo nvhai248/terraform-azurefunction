@@ -5,15 +5,32 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { AuthUtils, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
+import { eq } from "drizzle-orm";
+import { db } from "../../core/db/client";
+import { meals } from "../../core/db/schema";
 
 /**
  * @openapi
  * /api/meals:
  *   get:
  *     summary: List meals for current user
+ *     tags:
+ *       - Meals
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of meals
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Meal'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
  */
 export async function getMeals(
   request: HttpRequest,
@@ -25,8 +42,12 @@ export async function getMeals(
     return HttpResponse.unauthorized("Invalid token").toAzureResponse();
 
   try {
-    const meals = await prisma.meal.findMany({ where: { userId } });
-    return HttpResponse.ok(meals).toAzureResponse();
+    const results = await db
+      .select()
+      .from(meals)
+      .where(eq(meals.userId, userId));
+
+    return HttpResponse.ok(results).toAzureResponse();
   } catch (err) {
     context.log("Error fetching meals:", (err as Error).message);
     return HttpResponse.internalError().toAzureResponse();

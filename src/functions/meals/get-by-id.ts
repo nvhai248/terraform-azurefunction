@@ -5,15 +5,41 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { AuthUtils, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
+import { and, eq } from "drizzle-orm";
+import { db } from "../../core/db/client";
+import { meals } from "../../core/db/schema";
 
 /**
  * @openapi
  * /api/meals/{id}:
  *   get:
- *     summary: Get a specific meal
+ *     summary: Get a specific meal by ID
+ *     tags:
+ *       - Meals
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The meal ID
+ *     responses:
+ *       200:
+ *         description: Meal details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Meal'
+ *       400:
+ *         description: Meal ID required
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Meal not found
+ *       500:
+ *         description: Internal server error
  */
 export async function getMealById(
   request: HttpRequest,
@@ -28,8 +54,13 @@ export async function getMealById(
   if (!id) return HttpResponse.badRequest("Meal ID required").toAzureResponse();
 
   try {
-    const meal = await prisma.meal.findFirst({ where: { id, userId } });
+    const [meal] = await db
+      .select()
+      .from(meals)
+      .where(and(eq(meals.id, id), eq(meals.userId, userId)));
+
     if (!meal) return HttpResponse.notFound("Meal not found").toAzureResponse();
+
     return HttpResponse.ok(meal).toAzureResponse();
   } catch (err) {
     context.log("Error fetching meal:", (err as Error).message);

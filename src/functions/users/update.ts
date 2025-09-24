@@ -4,9 +4,11 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { AuthUtils, DecodedToken, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
+import { AuthUtils, HttpResponse } from "../../core/utils";
 import { UpdateUserDto } from "../../core/dtos/user";
+import { eq } from "drizzle-orm";
+import { db } from "../../core/db/client";
+import { users } from "../../core/db/schema";
 
 /**
  * @openapi
@@ -63,17 +65,26 @@ export async function updateUser(
   try {
     const body = (await request.json()) as UpdateUserDto;
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        height: body.height ?? undefined,
-        weight: body.weight ?? undefined,
-        gender: body.gender ?? undefined,
-        activityLevel: body.activityLevel ?? undefined,
-      },
-    });
+    // Build update data dynamically
+    const updateData: Partial<UpdateUserDto> = {};
+    if (body.height !== undefined) updateData.height = body.height;
+    if (body.weight !== undefined) updateData.weight = body.weight;
+    if (body.gender !== undefined) updateData.gender = body.gender;
+    if (body.activityLevel !== undefined)
+      updateData.activityLevel = body.activityLevel;
 
-    return HttpResponse.ok(updatedUser).toAzureResponse();
+    // Run update query
+    const updatedUsers = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, userId))
+      .returning();
+
+    if (!updatedUsers.length) {
+      return HttpResponse.notFound("User not found").toAzureResponse();
+    }
+
+    return HttpResponse.ok(updatedUsers[0]).toAzureResponse();
   } catch (err) {
     context.log("Error updating user:", (err as Error).message);
     return HttpResponse.internalError().toAzureResponse();

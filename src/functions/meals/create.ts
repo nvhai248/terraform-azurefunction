@@ -5,15 +5,18 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { AuthUtils, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
 import { CreateMealDto } from "../../core/dtos/meal";
-import { Prisma } from "@prisma/client";
+import { db } from "../../core/db/client";
+import { meals } from "../../core/db/schema";
 
 /**
  * @openapi
  * /api/meals:
  *   post:
  *     summary: Create a new meal
+ *     description: |
+ *       Creates a meal for the authenticated user.
+ *       The `userId` is taken from the JWT token, not the request body.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -25,6 +28,12 @@ import { Prisma } from "@prisma/client";
  *     responses:
  *       201:
  *         description: Meal created successfully
+ *       400:
+ *         description: Invalid request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
  */
 export async function createMeal(
   request: HttpRequest,
@@ -37,15 +46,24 @@ export async function createMeal(
 
   try {
     const body = (await request.json()) as CreateMealDto;
-    const meal = await prisma.meal.create({
-      data: {
-        ...body,
-        userId, // works because it's in the Unchecked type
-      } as Prisma.MealUncheckedCreateInput,
-    });
+
+    const [meal] = await db
+      .insert(meals)
+      .values({
+        userId, // taken from token
+        name: body.name,
+        imageUrl: body.imageUrl,
+        calories: body.calories,
+        protein: body.protein,
+        carbs: body.carbs,
+        fat: body.fat,
+        mealType: body.mealType,
+      })
+      .returning();
+
     return HttpResponse.created(meal).toAzureResponse();
   } catch (err) {
-    context.log("Error creating meal:", (err as Error).message);
+    context.error("Error creating meal:", (err as Error).message);
     return HttpResponse.internalError().toAzureResponse();
   }
 }

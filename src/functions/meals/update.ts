@@ -5,16 +5,48 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { AuthUtils, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
 import { UpdateMealDto } from "../../core/dtos/meal";
+import { and, eq } from "drizzle-orm";
+import { db } from "../../core/db/client";
+import { meals } from "../../core/db/schema";
 
 /**
  * @openapi
  * /api/meals/{id}:
  *   put:
  *     summary: Update a meal
+ *     tags:
+ *       - Meals
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The meal ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateMealDto'
+ *     responses:
+ *       200:
+ *         description: Meal updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Meal'
+ *       400:
+ *         description: Meal ID required
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Meal not found
+ *       500:
+ *         description: Internal server error
  */
 export async function updateMeal(
   request: HttpRequest,
@@ -30,14 +62,18 @@ export async function updateMeal(
 
   try {
     const body = (await request.json()) as UpdateMealDto;
-    const meal = await prisma.meal.updateMany({
-      where: { id, userId },
-      data: body,
-    });
-    if (meal.count === 0)
+
+    // update meal
+    const updated = await db
+      .update(meals)
+      .set(body)
+      .where(and(eq(meals.id, id), eq(meals.userId, userId)))
+      .returning();
+
+    if (updated.length === 0)
       return HttpResponse.notFound("Meal not found").toAzureResponse();
-    const updated = await prisma.meal.findUnique({ where: { id } });
-    return HttpResponse.ok(updated).toAzureResponse();
+
+    return HttpResponse.ok(updated[0]).toAzureResponse();
   } catch (err) {
     context.log("Error updating meal:", (err as Error).message);
     return HttpResponse.internalError().toAzureResponse();

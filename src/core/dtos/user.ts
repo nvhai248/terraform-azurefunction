@@ -7,7 +7,7 @@ export interface UpdateUserDto {
   height?: number;
   activityLevel?: ActivityLevel;
   dailyCalories?: number;
-  allergies?: string;
-  preferences?: string;
+  allergies?: string[];
+  preferences?: string[];
   avatarUrl?: string;
 }

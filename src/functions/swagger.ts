@@ -7,7 +7,7 @@ import {
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-dist";
 
-// Cấu hình swagger-jsdoc
+// swagger-jsdoc
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
@@ -24,10 +24,147 @@ const options: swaggerJsdoc.Options = {
           bearerFormat: "JWT",
         },
       },
+      schemas: {
+        // ---------------- MEALS ----------------
+        CreateMealDto: {
+          type: "object",
+          required: ["userId"],
+          properties: {
+            userId: { type: "string" },
+            name: { type: "string" },
+            imageUrl: { type: "string" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fat: { type: "number" },
+            mealType: {
+              type: "string",
+              enum: ["BREAKFAST", "LUNCH", "DINNER", "SNACK"],
+            },
+          },
+        },
+        UpdateMealDto: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            imageUrl: { type: "string" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fat: { type: "number" },
+            mealType: {
+              type: "string",
+              enum: ["BREAKFAST", "LUNCH", "DINNER", "SNACK"],
+            },
+          },
+        },
+        Meal: {
+          type: "object",
+          properties: {
+            id: { type: "string", example: "abc123" },
+            userId: { type: "string", example: "user_1" },
+            name: { type: "string", example: "Chicken Salad" },
+            imageUrl: {
+              type: "string",
+              format: "uri",
+              example: "https://example.com/meal.png",
+            },
+            calories: { type: "number", example: 350 },
+            protein: { type: "number", example: 30 },
+            carbs: { type: "number", example: 20 },
+            fat: { type: "number", example: 10 },
+            mealType: {
+              type: "string",
+              enum: ["breakfast", "lunch", "dinner", "snack"],
+            },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+          required: ["id", "userId", "name"],
+        },
+
+        // ---------------- ACTIVITY ----------------
+        CreateActivityDto: {
+          type: "object",
+          required: ["userId", "type"],
+          properties: {
+            userId: { type: "string" },
+            type: {
+              type: "string",
+              enum: ["RUNNING", "WALKING", "CYCLING", "GYM", "SWIMMING"],
+            }, // enum từ ActivityType
+            duration: {
+              type: "number",
+              description: "Thời lượng tính bằng phút",
+            },
+            calories: { type: "number" },
+          },
+        },
+        UpdateActivityDto: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: ["RUNNING", "WALKING", "CYCLING", "GYM", "SWIMMING"],
+            },
+            duration: { type: "number" },
+            calories: { type: "number" },
+          },
+        },
+
+        // ---------------- USER ----------------
+        UpdateUserDto: {
+          type: "object",
+          properties: {
+            age: { type: "number" },
+            gender: { type: "string", enum: ["MALE", "FEMALE", "OTHER"] }, // từ Gender
+            weight: { type: "number" },
+            height: { type: "number" },
+            activityLevel: {
+              type: "string",
+              enum: ["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"],
+            }, // từ ActivityLevel
+            dailyCalories: { type: "number" },
+            allergies: {
+              type: "array",
+              items: { type: "string" },
+              example: ["peanuts", "gluten"],
+            },
+            preferences: {
+              type: "array",
+              items: { type: "string" },
+              example: ["vegan", "low-carb"],
+            },
+            avatarUrl: {
+              type: "string",
+              format: "uri",
+              example: "https://cdn.example.com/avatars/123.png",
+            },
+          },
+        },
+
+        // ---------------- WEIGHT LOG ----------------
+        CreateWeightLogDto: {
+          type: "object",
+          required: ["userId", "weight"],
+          properties: {
+            userId: { type: "string" },
+            weight: { type: "number" },
+            note: { type: "string" },
+          },
+        },
+        UpdateWeightLogDto: {
+          type: "object",
+          properties: {
+            weight: { type: "number" },
+            note: { type: "string" },
+          },
+        },
+      },
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: ["./src/functions/*.ts"],
+  apis: ["./src/functions/**/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

@@ -4,8 +4,10 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { AuthUtils, DecodedToken, HttpResponse } from "../../core/utils";
-import { prisma } from "../../core/database";
+import { AuthUtils, HttpResponse } from "../../core/utils";
+import { eq } from "drizzle-orm";
+import { db } from "../../core/db/client";
+import { users } from "../../core/db/schema";
 
 /**
  * @openapi
@@ -41,17 +43,31 @@ export async function createUser(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   const token = AuthUtils.extractToken(request);
+
   try {
     const userId = AuthUtils.getUserId(token);
-    if (!userId)
+    if (!userId) {
       return HttpResponse.unauthorized("Invalid token").toAzureResponse();
+    }
 
-    // 4. Create user if not exists
-    const user = await prisma.user.upsert({
-      where: { id: userId },
-      update: {}, // do nothing if exists
-      create: { id: userId }, // only id is set
-    });
+    // Check if user exists
+    const existing = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    let user;
+    if (existing.length > 0) {
+      user = existing[0];
+    } else {
+      // Insert new user
+      const inserted = await db
+        .insert(users)
+        .values({ id: userId })
+        .returning();
+      user = inserted[0];
+    }
 
     return HttpResponse.ok(user).toAzureResponse();
   } catch (err) {
