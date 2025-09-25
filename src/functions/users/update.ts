@@ -9,6 +9,8 @@ import { UpdateUserDto } from "../../core/dtos/user";
 import { eq } from "drizzle-orm";
 import { db } from "../../core/db/client";
 import { users } from "../../core/db/schema";
+import { differenceInYears } from "date-fns";
+import { calculateBMI, calculateDailyCalories } from "../../core/libs/user-lib";
 
 /**
  * @openapi
@@ -65,13 +67,53 @@ export async function updateUser(
   try {
     const body = (await request.json()) as UpdateUserDto;
 
-    // Build update data dynamically
-    const updateData: Partial<UpdateUserDto> = {};
+    // Fetch current user (to get dateOfBirth, gender if not provided)
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+    if (!existingUser) {
+      return HttpResponse.notFound("User not found").toAzureResponse();
+    }
+
+    const updateData: any = {};
+
     if (body.height !== undefined) updateData.height = body.height;
     if (body.weight !== undefined) updateData.weight = body.weight;
     if (body.gender !== undefined) updateData.gender = body.gender;
     if (body.activityLevel !== undefined)
       updateData.activityLevel = body.activityLevel;
+    if (body.avatarUrl !== undefined) updateData.avatarUrl = body.avatarUrl;
+    if (body.allergies !== undefined) updateData.allergies = body.allergies;
+    if (body.preferences !== undefined)
+      updateData.dietaryPreference = body.preferences.join(",");
+
+    // ---- Auto-calculated fields ----
+    const gender = updateData.gender ?? existingUser.gender;
+    const weight = updateData.weight ?? existingUser.weight;
+    const height = updateData.height ?? existingUser.height;
+    const activityLevel =
+      updateData.activityLevel ?? existingUser.activityLevel;
+
+    // Calculate age from dateOfBirth
+    const dob = existingUser.dateOfBirth;
+    const age = dob ? differenceInYears(new Date(), new Date(dob)) : undefined;
+
+    // Calculate BMI
+    const bmi = calculateBMI(weight, height);
+    if (bmi) updateData.bmi = bmi;
+
+    // Calculate daily calories
+    const dailyCalorieGoal = calculateDailyCalories(
+      gender,
+      weight,
+      height,
+      age,
+      activityLevel
+    );
+    if (dailyCalorieGoal) updateData.dailyCalorieGoal = dailyCalorieGoal;
+
+    // Always update updatedAt
+    updateData.updatedAt = new Date();
 
     // Run update query
     const updatedUsers = await db
@@ -79,10 +121,6 @@ export async function updateUser(
       .set(updateData)
       .where(eq(users.id, userId))
       .returning();
-
-    if (!updatedUsers.length) {
-      return HttpResponse.notFound("User not found").toAzureResponse();
-    }
 
     return HttpResponse.ok(updatedUsers[0]).toAzureResponse();
   } catch (err) {
