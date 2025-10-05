@@ -4,7 +4,7 @@ variable "build_id" {
   default     = "local" # fallback for local apply
 }
 
-variable "subscription_id" {}
-variable "tenant_id" {}
-variable "client_id" {}
-variable "client_secret" {}
+# variable "subscription_id" {}
+# variable "tenant_id" {}
+# variable "client_id" {}
+# variable "client_secret" {}

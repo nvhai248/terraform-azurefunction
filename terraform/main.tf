@@ -8,6 +8,15 @@ module "azure_function" {
   runtime_version      = "22"
 }
 
+module "azure_function_dotnet" {
+  source               = "./modules/azure-function"
+  resource_group_name  = "microleaf-dotnet-rg"
+  function_name        = "microleafdotnetfunc"
+  location             = "Southeast Asia"
+  app_service_plan_sku = "FC1"
+  runtime              = "dotnet-isolated"
+  runtime_version      = "8.0"
+}
 
 module "azure_ad" {
   source = "./modules/azure-ad"
