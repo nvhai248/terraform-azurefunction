@@ -1,12 +1,11 @@
 using dotnet_func.Services.Interfaces;
 
-namespace dotnet_func.Services
+namespace dotnet_func.Services;
+
+public class GreetingService : IGreetingService
 {
-    public class GreetingService : IGreetingService
+    public string GetGreeting(string name)
     {
-        public string GetGreeting(string name)
-        {
-            return $"Hello, {name}!";
-        }
+        return $"Hello, {name}!";
     }
 }

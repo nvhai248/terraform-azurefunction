@@ -8,6 +8,6 @@ public class OpenApiConfig
     {
         options.Title = "My Azure Functions API";
         options.Version = "1.0.0";
-        options.Description = "API documentation for my Azure Functions.";
+        options.Description = "API documentation for my Azure Functions running on .NET Isolated model.";
     }
-};
+}

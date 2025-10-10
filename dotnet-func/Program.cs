@@ -5,12 +5,11 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-
-// Add Application Insights for telemetry.
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights()
@@ -20,8 +19,8 @@ builder.Services
         var openApiInfo = new OpenApiInfo();
         OpenApiConfig.ConfigureOpenApi(openApiInfo);
         options.SwaggerDoc("v1", openApiInfo);
+        options.SwaggerGeneratorOptions = new SwaggerGeneratorOptions();
     });
-
 
 var app = builder.Build();
 app.Run();

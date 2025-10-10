@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace dotnet_func.Utilities;
@@ -10,9 +11,9 @@ public static class Auth
     /// </summary>
     /// <param name="request">The HTTP request containing the Authorization header.</param>
     /// <returns>The token if found, otherwise null.</returns>
-    public static string? ExtractToken(HttpRequestData request)
+    public static string? ExtractToken(HttpRequest request)
     {
-        var authHeader = request.Headers.TryGetValues("Authorization", out var headers)
+        var authHeader = request.Headers.TryGetValue("Authorization", out var headers)
             ? headers.FirstOrDefault()
             : null;
 
