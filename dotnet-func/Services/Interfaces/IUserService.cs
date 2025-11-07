@@ -7,4 +7,5 @@ public interface IUserService
 {
     public User? GetUserInfo(string userId);
     public User? UpdateUserInfo(string userId, UpdateUserRequest updatedUser);
+    public Task<User> AddUserAsync(UpdateUserRequest newUser, string userId);
 }

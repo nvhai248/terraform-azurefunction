@@ -12,6 +12,7 @@ namespace dotnet_func.Utilities.Extensions
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
             services.AddSingleton<IGreetingService, GreetingService>();
+            services.AddSingleton<IUserService, UserService>();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSqlConnectionString")));
             return services;

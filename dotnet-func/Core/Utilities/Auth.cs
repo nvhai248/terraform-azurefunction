@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace dotnet_func.Utilities;
 

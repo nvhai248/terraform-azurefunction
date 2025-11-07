@@ -75,7 +75,7 @@ public class UpdateUserFunction
         Summary = "User not found",
         Description = "Returned when the user does not exist."
     )]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "user/update")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "user/update")] HttpRequest req)
     {
         _logger.LogInformation("Processing UpdateUser request...");
         var token = Auth.ExtractToken(req);
@@ -87,8 +87,8 @@ public class UpdateUserFunction
             return new UnauthorizedObjectResult(new { message = "Unauthorized" });
         }
 
-        var requestBody = new StreamReader(req.Body).ReadToEnd();
-        var updatedUser = JsonConvert.DeserializeObject<UpdateUserRequest>(requestBody);
+        string body = await new StreamReader(req.Body).ReadToEndAsync();
+        var updatedUser = JsonConvert.DeserializeObject<UpdateUserRequest>(body);
 
         if (updatedUser == null)
         {
@@ -99,8 +99,7 @@ public class UpdateUserFunction
         var user = _iUserService.UpdateUserInfo(userId, updatedUser);
         if (user == null)
         {
-            _logger.LogWarning("User not found");
-            return new NotFoundObjectResult(new { message = "User not found" });
+            user = await _iUserService.AddUserAsync(updatedUser, userId);
         }
 
         return new OkObjectResult(user);
