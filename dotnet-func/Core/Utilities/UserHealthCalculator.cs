@@ -1,3 +1,5 @@
+using dotnet_func.Models;
+
 namespace dotnet_func.Utilities;
 
 public static class UserHealthCalculator
@@ -61,10 +63,10 @@ public static class UserHealthCalculator
     public static string SuggestActivityLevel(double bmi, int age)
     {
         if (bmi < 25 && age < 35)
-            return "Active";
+            return ActivityLevel.VeryActive.ToString();
         if (bmi >= 25)
-            return "Sedentary";
-        return "VeryActive";
+            return ActivityLevel.Sedentary.ToString();
+        return ActivityLevel.VeryActive.ToString();
     }
 
     /// <summary>
