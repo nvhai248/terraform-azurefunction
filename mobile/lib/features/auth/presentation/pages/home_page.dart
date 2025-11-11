@@ -7,6 +7,8 @@ import 'package:mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_event.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_state.dart';
 
+import '../../../../core/enums/user.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 

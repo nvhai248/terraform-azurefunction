@@ -1,14 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum Gender { male, female, other }
-
-enum ActivityLevel { 
-  sedentary, 
-  lightlyActive, 
-  moderatelyActive, 
-  veryActive, 
-  extremelyActive 
-}
+import '../../../../core/enums/user.dart';
 
 class User extends Equatable {
   final String id;
@@ -56,7 +48,7 @@ class User extends Equatable {
     if (dateOfBirth == null) return null;
     final now = DateTime.now();
     int age = now.year - dateOfBirth!.year;
-    if (now.month < dateOfBirth!.month || 
+    if (now.month < dateOfBirth!.month ||
         (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
       age--;
     }
@@ -74,7 +66,7 @@ class User extends Equatable {
   String? get bmiCategory {
     final bmiValue = bmi ?? calculatedBmi;
     if (bmiValue == null) return null;
-    
+
     if (bmiValue < 18.5) return 'Underweight';
     if (bmiValue < 25) return 'Normal';
     if (bmiValue < 30) return 'Overweight';
@@ -84,10 +76,10 @@ class User extends Equatable {
   /// Check if profile is complete
   bool get isProfileComplete {
     return dateOfBirth != null &&
-           gender != null &&
-           height != null &&
-           weight != null &&
-           activityLevel != null;
+        gender != null &&
+        height != null &&
+        weight != null &&
+        activityLevel != null;
   }
 
   /// Get display name
@@ -97,6 +89,101 @@ class User extends Equatable {
       return email!.split('@').first;
     }
     return 'User';
+  }
+
+  /// Convert User to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'avatarUrl': avatarUrl,
+      'dateOfBirth': dateOfBirth?.toIso8601String(),
+      'gender': gender?.name,
+      'phoneNumber': phoneNumber,
+      'height': height,
+      'weight': weight,
+      'targetWeight': targetWeight,
+      'bmi': bmi,
+      'activityLevel': activityLevel?.name,
+      'allergies': allergies,
+      'medicalHistory': medicalHistory,
+      'dietaryPreference': dietaryPreference,
+      'dailyCalorieGoal': dailyCalorieGoal,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  factory User.empty() {
+    final now = DateTime.now();
+    return User(
+      id: '',
+      email: null,
+      name: '',
+      avatarUrl: null,
+      dateOfBirth: null,
+      gender: null,
+      phoneNumber: null,
+      height: null,
+      weight: null,
+      targetWeight: null,
+      bmi: null,
+      activityLevel: null,
+      allergies: const [],
+      medicalHistory: null,
+      dietaryPreference: null,
+      dailyCalorieGoal: null,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
+  /// Create User from JSON
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as String,
+      email: json['email'] as String?,
+      name: json['name'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
+      dateOfBirth:
+          json['dateOfBirth'] != null
+              ? DateTime.parse(json['dateOfBirth'] as String)
+              : null,
+      gender:
+          json['gender'] != null
+              ? Gender.values.firstWhere(
+                (e) => e.name == json['gender'],
+                orElse: () => Gender.other,
+              )
+              : null,
+      phoneNumber: json['phoneNumber'] as String?,
+      height:
+          json['height'] != null ? (json['height'] as num).toDouble() : null,
+      weight:
+          json['weight'] != null ? (json['weight'] as num).toDouble() : null,
+      targetWeight:
+          json['targetWeight'] != null
+              ? (json['targetWeight'] as num).toDouble()
+              : null,
+      bmi: json['bmi'] != null ? (json['bmi'] as num).toDouble() : null,
+      activityLevel:
+          json['activityLevel'] != null
+              ? ActivityLevel.values.firstWhere(
+                (e) => e.name == json['activityLevel'],
+                orElse: () => ActivityLevel.sedentary,
+              )
+              : null,
+      allergies:
+          json['allergies'] != null
+              ? List<String>.from(json['allergies'] as List)
+              : const [],
+      medicalHistory: json['medicalHistory'] as String?,
+      dietaryPreference: json['dietaryPreference'] as String?,
+      dailyCalorieGoal: json['dailyCalorieGoal'] as int?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
   }
 
   /// Copy with method for immutable updates
@@ -144,25 +231,25 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        name,
-        avatarUrl,
-        dateOfBirth,
-        gender,
-        phoneNumber,
-        height,
-        weight,
-        targetWeight,
-        bmi,
-        activityLevel,
-        allergies,
-        medicalHistory,
-        dietaryPreference,
-        dailyCalorieGoal,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    email,
+    name,
+    avatarUrl,
+    dateOfBirth,
+    gender,
+    phoneNumber,
+    height,
+    weight,
+    targetWeight,
+    bmi,
+    activityLevel,
+    allergies,
+    medicalHistory,
+    dietaryPreference,
+    dailyCalorieGoal,
+    createdAt,
+    updatedAt,
+  ];
 
   @override
   String toString() {

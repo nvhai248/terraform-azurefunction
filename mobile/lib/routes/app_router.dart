@@ -4,6 +4,7 @@ import 'package:mobile/core/constants/route_constants.dart';
 import 'package:mobile/features/auth/presentation/pages/home_page.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/auth/presentation/pages/splash_page.dart';
+import 'package:mobile/features/users/presentation/pages/edit_profile.dart';
 import 'package:mobile/routes/route_guards.dart';
 
 class AppRouter {
@@ -54,7 +55,7 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.editProfile,
         name: 'editProfile',
-        builder: (context, state) => const Placeholder(),
+        builder: (context, state) => const EditProfilePage(),
         // Replace with EditProfilePage
         redirect: RouteGuards.requireAuth,
       ),

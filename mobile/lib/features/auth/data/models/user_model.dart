@@ -1,5 +1,7 @@
 import 'package:mobile/features/auth/domain/entities/user.dart';
 
+import '../../../../core/enums/user.dart';
+
 class UserModel extends User {
   const UserModel({
     required String id,

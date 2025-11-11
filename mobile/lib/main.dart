@@ -5,9 +5,12 @@ import 'package:mobile/core/config/theme/app_theme.dart';
 import 'package:mobile/core/services/secure_storage_service.dart';
 import 'package:mobile/core/utils/logger.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:mobile/features/users/data/repositories/user.dart';
 import 'package:mobile/routes/app_router.dart';
 import 'package:mobile/core/network/dio_client.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_event.dart';
+
+import 'features/users/presentation/bloc/profile_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +39,11 @@ class HealthcareApp extends StatelessWidget {
               (context) =>
                   AuthBloc(navigatorKey: AppRouter.navigatorKey)
                     ..add(const CheckAuthStatusEvent()),
+        ),
+        BlocProvider(
+          create: (context) => ProfileBloc(
+            UserRepository(),
+          ),
         ),
       ],
       child: MaterialApp.router(

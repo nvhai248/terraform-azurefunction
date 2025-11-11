@@ -6,15 +6,10 @@ class AppConfig {
   static const bool isProduction = bool.fromEnvironment('dart.vm.product');
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: isProduction 
-        ? 'https://api.healthcare-prod.com' 
-        : 'https://api.healthcare-dev.com',
+    defaultValue: isProduction
+        ? 'http://10.0.2.2:7071'
+        : 'http://10.0.2.2:7071',
   );
-  
-  // API endpoints
-  static const String apiVersion = '/api/v1';
-  static const String userEndpoint = '$apiVersion/users';
-  static const String profileEndpoint = '$apiVersion/profile';
   
   // Pagination
   static const int defaultPageSize = 20;
