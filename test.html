@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Detect Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .notification {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #e0f7e9;
+        border-color: #3c763d;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #a94442;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Upload an Image to Test Food Detect Function</h2>
+
+    <input type="file" id="fileInput" accept="image/*" />
+    <button id="uploadBtn">Upload & Detect</button>
+
+    <div id="notification" class="notification" style="display: none"></div>
+
+    <script>
+      const uploadBtn = document.getElementById("uploadBtn");
+      const fileInput = document.getElementById("fileInput");
+      const notification = document.getElementById("notification");
+
+      uploadBtn.addEventListener("click", async () => {
+        if (!fileInput.files.length) {
+          showNotification("Please select a file first.", "error");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const response = await fetch(
+            "http://localhost:7071/api/food-detect",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            const text = await response.text();
+            showNotification(`Error: ${text}`, "error");
+            return;
+          }
+
+          const result = await response.json();
+          showNotification(JSON.stringify(result, null, 2), "success");
+        } catch (err) {
+          showNotification(`Request failed: ${err.message}`, "error");
+        }
+      });
+
+      function showNotification(message, type) {
+        notification.style.display = "block";
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+      }
+    </script>
+  </body>
+</html>

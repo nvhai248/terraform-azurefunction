@@ -5,6 +5,10 @@ __pycache__/
 
 node_modules/
 
+qdrant_storage
+vertex-sa.json
+vertex-sa.txt
+
 # C extensions
 *.so
 
